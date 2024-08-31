@@ -3,6 +3,10 @@ import './App.css';
 import { Drawer, Divider, Container, Box, TextField, Button, List, ListItem, ListItemText, IconButton, Typography, LinearProgress, Grid } from '@mui/material';
 import { CheckCircleOutline, CheckCircle } from '@mui/icons-material';
 import { v4 as uuidv4 } from 'uuid';
+import DeleteIcon from '@mui/icons-material/Delete';
+import Sidebar from './Sidebar';
+//import Calendar from 'react-calendar';
+//import 'react-calendar/dist/Calendar.css';
 
 const APP_KEY = 'sampleApp';
 
@@ -126,7 +130,7 @@ function App() {
     ));
     localStorage.setItem('defaultMorningTodos', JSON.stringify(defaultMorningTodos));
   };
-
+　//チェックする関数
   const toggleTodo = (id) => {
     const newTodos = todos.map((todo) => {
       if (todo.id === id) {
@@ -134,7 +138,6 @@ function App() {
       }
       return todo;
     });
-
     const filteredTodos = newTodos.filter(todo => !todo.completed);
     const newWidth = currentWidth + 20;
 
@@ -147,11 +150,23 @@ function App() {
 
     setTodos(filteredTodos);
   };
+  const deleteTodo = (id) => {
+    setTodos(todos.filter(todo => todo.id !== id));
+  };
+
+  const handleDateChange = date => {
+    console.log('Selected Date:', date);
+    // ここで日付に基づいてToDoリストをフィルタリングする処理を追加
+  };
 
   return (
     <Grid container spacing={2}>
+      <Grid item xs={12} sm={3}>
+        <Sidebar onDateChange={handleDateChange} />
+      </Grid>
+
       {/* Main Content */}
-      <Grid item xs={8}>
+      <Grid item xs={5}>
         <Container maxWidth="sm" className="app-container">
           <Box mt={4} mb={2} textAlign="center">
             <Typography variant="h4">TODOリスト</Typography>
@@ -171,9 +186,14 @@ function App() {
             {todos && todos.length > 0 ? (
               todos.map((todo) => (
                 <ListItem key={todo.id} secondaryAction={
-                  <IconButton edge="end" aria-label="delete" onClick={() => toggleTodo(todo.id)}>
+                  <Box>  
+                   <IconButton edge="end" aria-label="toggle" onClick={() => toggleTodo(todo.id)}>
                     {todo.completed ? <CheckCircle color="success" /> : <CheckCircleOutline />}
-                  </IconButton>
+                   </IconButton>
+                   <IconButton edge="end" aria-label="delete" onClick={() => deleteTodo(todo.id)}>
+                      <DeleteIcon />
+                   </IconButton>
+          </Box>
                 }>
                   <ListItemText primary={todo.name} />
                 </ListItem>
@@ -189,7 +209,6 @@ function App() {
           </Box>
         </Container>
       </Grid>
-
       {/* Side Drawer for Morning Todos */}
       <Grid item xs={4}>
         <Drawer variant="permanent" anchor="right">
@@ -220,8 +239,7 @@ function App() {
         </Drawer>
       </Grid>
     </Grid>
+
   );
-}
-
+};
 export default App;
-
