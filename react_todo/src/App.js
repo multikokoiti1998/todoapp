@@ -1,12 +1,9 @@
 import React, { useState, useRef, useEffect } from 'react';
 import './App.css';
-import { Drawer, Divider, Container, Box, TextField, Button, List, ListItem, ListItemText, IconButton, Typography, LinearProgress, Grid } from '@mui/material';
-import { CheckCircleOutline, CheckCircle } from '@mui/icons-material';
+import { Container, Box, TextField, Button, Typography, LinearProgress, Grid } from '@mui/material';
+import TodoList from './TodoList';
+import MorningTodosDrawer from './MorningTodosDrawer';
 import { v4 as uuidv4 } from 'uuid';
-import DeleteIcon from '@mui/icons-material/Delete';
-import Sidebar from './Sidebar';
-//import Calendar from 'react-calendar';
-//import 'react-calendar/dist/Calendar.css';
 
 const APP_KEY = 'sampleApp';
 
@@ -20,9 +17,9 @@ function App() {
     lastTodoTime: null
   };
 
-  const [todos, setTodos] = useState(initialState.todos || []);  // 空配列で初期化
+  const [todos, setTodos] = useState(initialState.todos || []);
   const [level, setLevel] = useState(initialState.level);
-  const [defaultMorningTodos, setDefaultMorningTodos] = useState(initialState.defaultMorningTodos || []);  // 空配列で初期化
+  const [defaultMorningTodos, setDefaultMorningTodos] = useState(initialState.defaultMorningTodos || []);
   const [currentWidth, setCurrentWidth] = useState(initialState.currentWidth);
   const [lastTodoTime, setLastTodoTime] = useState(initialState.lastTodoTime);
   const todoNameRef = useRef(null);
@@ -63,7 +60,6 @@ function App() {
       const hours = now.getHours();
       const minutes = now.getMinutes();
 
-      // 毎朝6時に5つのTODOを自動追加
       if (hours >= 6 && minutes >= 0) {
         setTodos((prevTodos) => [...prevTodos, ...defaultMorningTodos.map(todo => ({
           ...todo,
@@ -77,11 +73,10 @@ function App() {
         });
       }
 
-      // 8時に最後のTODOが追加されていない場合に通知を送信
       if (hours >= 8 && minutes >= 0) {
         const lastTodoDate = new Date(lastTodoTime);
         const today = new Date();
-        today.setHours(0, 0, 0, 0); // 今日の日付の00:00:00に設定
+        today.setHours(0, 0, 0, 0);
 
         if (!lastTodoTime || lastTodoDate < today) {
           new Notification('TODOリマインダー', {
@@ -92,28 +87,23 @@ function App() {
         }
       }
 
-      // 未完了のTODOが3つ以上ある場合にレベルをマイナス1
       const incompleteTodos = todos.filter(todo => !todo.completed).length;
       if (incompleteTodos >= 3) {
         setLevel(prevLevel => Math.max(0, prevLevel - 2));
       }
     };
 
-    // 毎分チェックする
-    const interval = setInterval(checkTimeAndNotify, 60000);  // 1分ごとにチェック
+    const interval = setInterval(checkTimeAndNotify, 60000);
 
-    // クリーンアップ
     return () => clearInterval(interval);
   }, [lastTodoTime, todos, defaultMorningTodos]);
 
   const handleAddTodo = () => {
     const name = todoNameRef.current.value;
     if (name === '') return;
-    setTodos((prevTodos) => {
-      return [...prevTodos, { id: uuidv4(), name: name, completed: false }];
-    });
+    setTodos((prevTodos) => [...prevTodos, { id: uuidv4(), name: name, completed: false }]);
     setLastTodoTime(new Date().toISOString());
-    todoNameRef.current.value = ''; // 入力フィールドをクリア
+    todoNameRef.current.value = '';
   };
 
   const handleAddMorningTodos = () => {
@@ -130,7 +120,7 @@ function App() {
     ));
     localStorage.setItem('defaultMorningTodos', JSON.stringify(defaultMorningTodos));
   };
-　//チェックする関数
+
   const toggleTodo = (id) => {
     const newTodos = todos.map((todo) => {
       if (todo.id === id) {
@@ -150,22 +140,13 @@ function App() {
 
     setTodos(filteredTodos);
   };
+
   const deleteTodo = (id) => {
     setTodos(todos.filter(todo => todo.id !== id));
   };
 
-  const handleDateChange = date => {
-    console.log('Selected Date:', date);
-    // ここで日付に基づいてToDoリストをフィルタリングする処理を追加
-  };
-
   return (
     <Grid container spacing={2}>
-      <Grid item xs={12} sm={3}>
-        <Sidebar onDateChange={handleDateChange} />
-      </Grid>
-
-      {/* Main Content */}
       <Grid item xs={5}>
         <Container maxWidth="sm" className="app-container">
           <Box mt={4} mb={2} textAlign="center">
@@ -173,7 +154,7 @@ function App() {
           </Box>
           <Box display="flex" mb={2}>
             <TextField
-              inputRef={todoNameRef} // Refを使う
+              inputRef={todoNameRef}
               label="新しいタスク"
               variant="outlined"
               fullWidth
@@ -182,26 +163,7 @@ function App() {
               追加
             </Button>
           </Box>
-          <List>
-            {todos && todos.length > 0 ? (
-              todos.map((todo) => (
-                <ListItem key={todo.id} secondaryAction={
-                  <Box>  
-                   <IconButton edge="end" aria-label="toggle" onClick={() => toggleTodo(todo.id)}>
-                    {todo.completed ? <CheckCircle color="success" /> : <CheckCircleOutline />}
-                   </IconButton>
-                   <IconButton edge="end" aria-label="delete" onClick={() => deleteTodo(todo.id)}>
-                      <DeleteIcon />
-                   </IconButton>
-          </Box>
-                }>
-                  <ListItemText primary={todo.name} />
-                </ListItem>
-              ))
-            ) : (
-              <Typography>タスクがありません</Typography>
-            )}
-          </List>
+          <TodoList todos={todos} toggleTodo={toggleTodo} deleteTodo={deleteTodo} />
           <Box mt={2}>
             <Typography variant="subtitle1">残りのタスク: {todos.filter((todo) => !todo.completed).length}</Typography>
             <Typography variant="subtitle1">漢レベル: {level}</Typography>
@@ -209,37 +171,15 @@ function App() {
           </Box>
         </Container>
       </Grid>
-      {/* Side Drawer for Morning Todos */}
       <Grid item xs={4}>
-        <Drawer variant="permanent" anchor="right">
-          <Box width={250} p={2}>
-            <Typography variant="h6">毎朝のタスク</Typography>
-            <List>
-              {defaultMorningTodos && defaultMorningTodos.length > 0 ? (
-                defaultMorningTodos.map((todo) => (
-                  <ListItem key={todo.id}>
-                    <TextField
-                      value={todo.name}
-                      onChange={(e) => handleTodoChange(todo.id, e.target.value)}
-                      fullWidth
-                    />
-                  </ListItem>
-                ))
-              ) : (
-                <Typography>朝のタスクがありません</Typography>
-              )}
-            </List>
-            <Divider />
-            <Box mt={2} textAlign="center">
-              <Button variant="contained" color="secondary" onClick={handleAddMorningTodos}>
-                朝のタスクを追加
-              </Button>
-            </Box>
-          </Box>
-        </Drawer>
+        <MorningTodosDrawer
+          defaultMorningTodos={defaultMorningTodos}
+          handleTodoChange={handleTodoChange}
+          handleAddMorningTodos={handleAddMorningTodos}
+        />
       </Grid>
     </Grid>
-
   );
-};
+}
+
 export default App;
