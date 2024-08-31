@@ -3,6 +3,7 @@ import './App.css';
 import { Container, Box, TextField, Button, Typography, LinearProgress, Grid } from '@mui/material';
 import TodoList from './TodoList';
 import MorningTodosDrawer from './MorningTodosDrawer';
+import RoutineTodosDrawer from './RoutineTodosDrawer';
 import { v4 as uuidv4 } from 'uuid';
 
 const APP_KEY = 'sampleApp';
@@ -29,30 +30,6 @@ function App() {
     localStorage.setItem(APP_KEY, JSON.stringify(stateToSave));
   }, [todos, level, currentWidth, lastTodoTime]);
 
-  useEffect(() => {
-    Notification.requestPermission().then(permission => {
-      if (permission === 'granted') {
-        console.log('通知が許可されました');
-      } else {
-        console.log('通知が拒否されました');
-      }
-    });
-  }, []);
-
-  useEffect(() => {
-    if (!localStorage.getItem('defaultMorningTodos')) {
-      const userDefinedTodos = prompt("毎朝追加されるToDo 5つをカンマ区切りで入力してください（例: ベッドを整える, 今日の目標入力, ダンスルーチン, 水を飲む, 日光を浴びる）:");
-      if (userDefinedTodos) {
-        const todosArray = userDefinedTodos.split(',').map(task => ({
-          id: uuidv4(),
-          name: task.trim(),
-          completed: false
-        }));
-        setDefaultMorningTodos(todosArray);
-        localStorage.setItem('defaultMorningTodos', JSON.stringify(todosArray));
-      }
-    }
-  }, []);
 
   useEffect(() => {
     const checkTimeAndNotify = () => {
@@ -97,6 +74,7 @@ function App() {
 
     return () => clearInterval(interval);
   }, [lastTodoTime, todos, defaultMorningTodos]);
+
 
   const handleAddTodo = () => {
     const name = todoNameRef.current.value;
@@ -171,14 +149,19 @@ function App() {
           </Box>
         </Container>
       </Grid>
-      <Grid item xs={4}>
+      
+       <Grid item xs={6}>
         <MorningTodosDrawer
           defaultMorningTodos={defaultMorningTodos}
           handleTodoChange={handleTodoChange}
           handleAddMorningTodos={handleAddMorningTodos}
         />
-      </Grid>
-    </Grid>
+       </Grid>
+       <Grid item xs={6}>
+        <RoutineTodosDrawer />
+       </Grid>
+      </Grid> 
+    
   );
 }
 

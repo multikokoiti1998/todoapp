@@ -3,14 +3,14 @@ import { Drawer, Divider, Box, TextField, Button, List, ListItem, Typography, Ic
 import { v4 as uuidv4 } from 'uuid';
 import DeleteIcon from '@mui/icons-material/Delete';
 
-function MorningTodosDrawer() {
-  const [defaultMorningTodos, setDefaultMorningTodos] = useState([]);
+function RoutineTodosDrawer() {
+  const [routineTodos, setRoutineTodos] = useState([]);
   const todoNameRef = useRef(null);
 
-  const onAddMorningTodo = () => {
+  const onAddRoutineTodo = () => {
     const newTodoName = todoNameRef.current.value.trim();
     if (newTodoName !== '') {
-      setDefaultMorningTodos(prevTodos => [
+      setRoutineTodos(prevTodos => [
         ...prevTodos,
         { id: uuidv4(), name: newTodoName, completed: false }
       ]);
@@ -19,22 +19,22 @@ function MorningTodosDrawer() {
   };
 
   const handleTodoChange = (id, newName) => {
-    setDefaultMorningTodos(prevTodos =>
+    setRoutineTodos(prevTodos =>
       prevTodos.map(todo => todo.id === id ? { ...todo, name: newName } : todo)
     );
   };
 
   const handleDeleteTodo = (id) => {
-    setDefaultMorningTodos(prevTodos => prevTodos.filter(todo => todo.id !== id));
+    setRoutineTodos(prevTodos => prevTodos.filter(todo => todo.id !== id));
   };
 
   return (
     <Drawer variant="permanent" anchor="right">
       <Box width={250} p={2}>
-        <Typography variant="h6">毎朝のタスク</Typography>
+        <Typography variant="h6">ルーティンのタスク</Typography>
         <List>
-          {defaultMorningTodos.length > 0 ? (
-            defaultMorningTodos.map((todo) => (
+          {routineTodos.length > 0 ? (
+            routineTodos.map((todo) => (
               <ListItem key={todo.id} secondaryAction={
                 <IconButton edge="end" aria-label="delete" onClick={() => handleDeleteTodo(todo.id)}>
                   <DeleteIcon />
@@ -48,7 +48,7 @@ function MorningTodosDrawer() {
               </ListItem>
             ))
           ) : (
-            <Typography>朝のタスクがありません</Typography>
+            <Typography>ルーティンのタスクがありません</Typography>
           )}
         </List>
         <Divider />
@@ -59,8 +59,8 @@ function MorningTodosDrawer() {
             variant="outlined"
             fullWidth
           />
-          <Button variant="contained" color="secondary" onClick={onAddMorningTodo}>
-            朝のタスクを追加
+          <Button variant="contained" color="primary" onClick={onAddRoutineTodo}>
+            ルーティンのタスクを追加
           </Button>
         </Box>
       </Box>
@@ -68,4 +68,4 @@ function MorningTodosDrawer() {
   );
 }
 
-export default MorningTodosDrawer;
+export default RoutineTodosDrawer;
