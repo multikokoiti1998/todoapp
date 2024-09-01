@@ -29,7 +29,6 @@ function RoutineTodosDrawer() {
   };
 
   return (
-    <Drawer variant="permanent" anchor="right">
       <Box width={250} p={2}>
         <Typography variant="h6">ルーティンのタスク</Typography>
         <List>
@@ -64,7 +63,6 @@ function RoutineTodosDrawer() {
           </Button>
         </Box>
       </Box>
-    </Drawer>
   );
 }
 

@@ -124,8 +124,8 @@ function App() {
   };
 
   return (
-    <Grid container spacing={2}>
-      <Grid item xs={5}>
+    <Grid container spacing={2}> 
+      <Grid item xs={6}>
         <Container maxWidth="sm" className="app-container">
           <Box mt={4} mb={2} textAlign="center">
             <Typography variant="h4">TODOリスト</Typography>
@@ -147,19 +147,21 @@ function App() {
             <Typography variant="subtitle1">漢レベル: {level}</Typography>
             <LinearProgress variant="determinate" value={currentWidth} />
           </Box>
-        </Container>
-      </Grid>
-      
-       <Grid item xs={6}>
+          </Container>
+      </Grid>     
+      <Grid item xs={3}>
         <MorningTodosDrawer
           defaultMorningTodos={defaultMorningTodos}
           handleTodoChange={handleTodoChange}
           handleAddMorningTodos={handleAddMorningTodos}
         />
-       </Grid>
-       <Grid item xs={6}>
+      </Grid>
+      <Grid item xs={3}>
         <RoutineTodosDrawer />
-       </Grid>
+      </Grid>
+      
+      
+
       </Grid> 
     
   );

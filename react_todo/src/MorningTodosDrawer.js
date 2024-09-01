@@ -29,7 +29,6 @@ function MorningTodosDrawer() {
   };
 
   return (
-    <Drawer variant="permanent" anchor="right">
       <Box width={250} p={2}>
         <Typography variant="h6">毎朝のタスク</Typography>
         <List>
@@ -64,7 +63,7 @@ function MorningTodosDrawer() {
           </Button>
         </Box>
       </Box>
-    </Drawer>
+    
   );
 }
 
