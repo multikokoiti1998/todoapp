@@ -1,5 +1,5 @@
 import React, { useState, useRef } from 'react';
-import { Drawer, Divider, Box, TextField, Button, List, ListItem, Typography, IconButton } from '@mui/material';
+import {  Divider, Box, TextField, Button, List, ListItem, Typography, IconButton } from '@mui/material';
 import { v4 as uuidv4 } from 'uuid';
 import DeleteIcon from '@mui/icons-material/Delete';
 
@@ -29,8 +29,8 @@ function RoutineTodosDrawer() {
   };
 
   return (
-      <Box width={250} p={2}>
-        <Typography variant="h6">ルーティンのタスク</Typography>
+      <Box width={200} p={2}>
+        <Typography variant="h6">ルーティン</Typography>
         <List>
           {routineTodos.length > 0 ? (
             routineTodos.map((todo) => (
@@ -47,7 +47,7 @@ function RoutineTodosDrawer() {
               </ListItem>
             ))
           ) : (
-            <Typography>ルーティンのタスクがありません</Typography>
+            <Typography>ルーティンがありません</Typography>
           )}
         </List>
         <Divider />
@@ -59,7 +59,10 @@ function RoutineTodosDrawer() {
             fullWidth
           />
           <Button variant="contained" color="primary" onClick={onAddRoutineTodo}>
-            ルーティンのタスクを追加
+            ルーティンを追加
+          </Button>
+          <Button variant="contained" color="primary" onClick={onAddRoutineTodo} sx={{mt:1}}>
+            TODOに追加
           </Button>
         </Box>
       </Box>

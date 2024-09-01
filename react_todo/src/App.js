@@ -13,6 +13,7 @@ function App() {
   const initialState = savedState ? JSON.parse(savedState) : {
     todos: [],
     defaultMorningTodos: [],
+    routineTodos: [],
     level: 1,
     currentWidth: 0,
     lastTodoTime: null
@@ -21,15 +22,17 @@ function App() {
   const [todos, setTodos] = useState(initialState.todos || []);
   const [level, setLevel] = useState(initialState.level);
   const [defaultMorningTodos, setDefaultMorningTodos] = useState(initialState.defaultMorningTodos || []);
+  const [routineTodos, setRoutineTodos] = useState(initialState.routineTodos || []);
   const [currentWidth, setCurrentWidth] = useState(initialState.currentWidth);
   const [lastTodoTime, setLastTodoTime] = useState(initialState.lastTodoTime);
   const todoNameRef = useRef(null);
 
   useEffect(() => {
-    const stateToSave = { todos, level, currentWidth, lastTodoTime };
+    const stateToSave = { todos, defaultMorningTodos, routineTodos, level, currentWidth, lastTodoTime };
     localStorage.setItem(APP_KEY, JSON.stringify(stateToSave));
-  }, [todos, level, currentWidth, lastTodoTime]);
-
+    console.log("Saving state to localStorage:", stateToSave);
+  }, [todos, defaultMorningTodos, routineTodos, level, currentWidth, lastTodoTime]);
+  
 
   useEffect(() => {
     const checkTimeAndNotify = () => {

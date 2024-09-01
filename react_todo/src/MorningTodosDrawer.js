@@ -1,11 +1,27 @@
-import React, { useState, useRef } from 'react';
-import { Drawer, Divider, Box, TextField, Button, List, ListItem, Typography, IconButton } from '@mui/material';
+import React, { useState, useRef, useEffect } from 'react';
+import { Box, Typography, List, ListItem, TextField, Button, IconButton, Divider } from '@mui/material';
 import { v4 as uuidv4 } from 'uuid';
 import DeleteIcon from '@mui/icons-material/Delete';
+
+const APP_KEY = 'sampleApp'; 
 
 function MorningTodosDrawer() {
   const [defaultMorningTodos, setDefaultMorningTodos] = useState([]);
   const todoNameRef = useRef(null);
+
+  // 初回レンダリング時にlocalStorageからデータを読み込む
+  useEffect(() => {
+    const savedTodos = localStorage.getItem(APP_KEY);
+    if (savedTodos) {
+      const parsedState = JSON.parse(savedTodos);
+      setDefaultMorningTodos(parsedState.defaultMorningTodos || []);
+    }
+  }, []);
+
+  // defaultMorningTodosが変更されるたびにlocalStorageに保存する
+  useEffect(() => {
+    localStorage.setItem(APP_KEY, JSON.stringify(defaultMorningTodos));
+  }, [defaultMorningTodos]);
 
   const onAddMorningTodo = () => {
     const newTodoName = todoNameRef.current.value.trim();
@@ -29,7 +45,7 @@ function MorningTodosDrawer() {
   };
 
   return (
-      <Box width={250} p={2}>
+      <Box width={200} p={2}>
         <Typography variant="h6">毎朝のタスク</Typography>
         <List>
           {defaultMorningTodos.length > 0 ? (
@@ -63,7 +79,6 @@ function MorningTodosDrawer() {
           </Button>
         </Box>
       </Box>
-    
   );
 }
 
