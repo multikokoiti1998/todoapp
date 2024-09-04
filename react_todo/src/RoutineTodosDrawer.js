@@ -4,8 +4,8 @@ import { v4 as uuidv4 } from 'uuid';
 import DeleteIcon from '@mui/icons-material/Delete';
 
 function RoutineTodosDrawer() {
-  const [routineTodos, setRoutineTodos] = useState([]);
-  const todoNameRef = useRef(null);
+   const [routineTodos, setRoutineTodos] = useState([]);
+   const todoNameRef = useRef(null);
 
   const onAddRoutineTodo = () => {
     const newTodoName = todoNameRef.current.value.trim();

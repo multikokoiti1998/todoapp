@@ -27,6 +27,20 @@ function App() {
   const [lastTodoTime, setLastTodoTime] = useState(initialState.lastTodoTime);
   const todoNameRef = useRef(null);
 
+
+  useEffect(() => {
+    const savedState = localStorage.getItem(APP_KEY);
+    if (savedState) {
+      const parsedState = JSON.parse(savedState);
+      setTodos(parsedState.todos || []);
+      setDefaultMorningTodos(parsedState.defaultMorningTodos || []);
+      setRoutineTodos(parsedState.routineTodos || []);
+      setLevel(parsedState.level || 1);
+      setCurrentWidth(parsedState.currentWidth || 0);
+      setLastTodoTime(parsedState.lastTodoTime || null);
+    }
+  }, []); // 初回レンダリング時のみ実行する
+
   useEffect(() => {
     const stateToSave = { todos, defaultMorningTodos, routineTodos, level, currentWidth, lastTodoTime };
     localStorage.setItem(APP_KEY, JSON.stringify(stateToSave));

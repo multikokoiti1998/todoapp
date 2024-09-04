@@ -19,9 +19,9 @@ function MorningTodosDrawer() {
   }, []);
 
   // defaultMorningTodosが変更されるたびにlocalStorageに保存する
-  useEffect(() => {
-    localStorage.setItem(APP_KEY, JSON.stringify(defaultMorningTodos));
-  }, [defaultMorningTodos]);
+    // useEffect(() => {
+    // localStorage.setItem(APP_KEY, JSON.stringify(defaultMorningTodos));
+  // }, [defaultMorningTodos]);
 
   const onAddMorningTodo = () => {
     const newTodoName = todoNameRef.current.value.trim();
