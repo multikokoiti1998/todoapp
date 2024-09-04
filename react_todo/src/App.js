@@ -45,6 +45,7 @@ function App() {
     const stateToSave = { todos, defaultMorningTodos, routineTodos, level, currentWidth, lastTodoTime };
     localStorage.setItem(APP_KEY, JSON.stringify(stateToSave));
     console.log("Saving state to localStorage:", stateToSave);
+    console.log("defaultMorningTodos:", defaultMorningTodos);
   }, [todos, defaultMorningTodos, routineTodos, level, currentWidth, lastTodoTime]);
   
 
@@ -101,13 +102,14 @@ function App() {
     todoNameRef.current.value = '';
   };
 
-  const handleAddMorningTodos = () => {
-    setTodos([...todos, ...defaultMorningTodos.map(todo => ({
-      ...todo,
-      id: uuidv4(),
-      completed: false
-    }))]);
+  const handleAddMorningTodos = (newTodoName) => {
+    const newTodo = {
+      id: Date.now(),
+      name: newTodoName,
+    };
+    setDefaultMorningTodos((prevTodos) => [...prevTodos, newTodo]);
   };
+  
 
   const handleTodoChange = (id, newName) => {
     setDefaultMorningTodos(defaultMorningTodos.map(todo =>
@@ -168,9 +170,9 @@ function App() {
       </Grid>     
       <Grid item xs={3}>
         <MorningTodosDrawer
-          defaultMorningTodos={defaultMorningTodos}
-          handleTodoChange={handleTodoChange}
-          handleAddMorningTodos={handleAddMorningTodos}
+          defaultMorningTodos={defaultMorningTodos} // タスクのリストを渡す
+          handleTodoChange={handleTodoChange} // タスク名変更用の関数を渡す
+          handleAddMorningTodos={handleAddMorningTodos} // 新しいタスク追加用の関数を渡す
         />
       </Grid>
       <Grid item xs={3}>

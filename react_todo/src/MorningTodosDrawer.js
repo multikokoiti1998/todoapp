@@ -1,84 +1,59 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useRef } from 'react';
 import { Box, Typography, List, ListItem, TextField, Button, IconButton, Divider } from '@mui/material';
-import { v4 as uuidv4 } from 'uuid';
 import DeleteIcon from '@mui/icons-material/Delete';
 
-const APP_KEY = 'sampleApp'; 
+function MorningTodosDrawer({ defaultMorningTodos, handleTodoChange, handleAddMorningTodos }) {
+  const todoNameRef = useRef(null); // タスク追加用のref
 
-function MorningTodosDrawer() {
-  const [defaultMorningTodos, setDefaultMorningTodos] = useState([]);
-  const todoNameRef = useRef(null);
-
-  // 初回レンダリング時にlocalStorageからデータを読み込む
-  useEffect(() => {
-    const savedTodos = localStorage.getItem(APP_KEY);
-    if (savedTodos) {
-      const parsedState = JSON.parse(savedTodos);
-      setDefaultMorningTodos(parsedState.defaultMorningTodos || []);
-    }
-  }, []);
-
-  // defaultMorningTodosが変更されるたびにlocalStorageに保存する
-    // useEffect(() => {
-    // localStorage.setItem(APP_KEY, JSON.stringify(defaultMorningTodos));
-  // }, [defaultMorningTodos]);
-
+  // 新しいタスクを追加する関数
   const onAddMorningTodo = () => {
-    const newTodoName = todoNameRef.current.value.trim();
+    const newTodoName = todoNameRef.current.value.trim(); // 空白を除去
     if (newTodoName !== '') {
-      setDefaultMorningTodos(prevTodos => [
-        ...prevTodos,
-        { id: uuidv4(), name: newTodoName, completed: false }
-      ]);
-      todoNameRef.current.value = ''; // 入力フィールドをクリア
+      handleAddMorningTodos(newTodoName); // 親コンポーネントの関数を呼び出し、タスクを追加
+      todoNameRef.current.value = ''; // テキストフィールドをクリア
     }
   };
 
-  const handleTodoChange = (id, newName) => {
-    setDefaultMorningTodos(prevTodos =>
-      prevTodos.map(todo => todo.id === id ? { ...todo, name: newName } : todo)
-    );
-  };
-
+  // タスクを削除する関数
   const handleDeleteTodo = (id) => {
-    setDefaultMorningTodos(prevTodos => prevTodos.filter(todo => todo.id !== id));
+    handleTodoChange(id, ''); // 親コンポーネントに削除を依頼する
   };
 
   return (
-      <Box width={200} p={2}>
-        <Typography variant="h6">毎朝のタスク</Typography>
-        <List>
-          {defaultMorningTodos.length > 0 ? (
-            defaultMorningTodos.map((todo) => (
-              <ListItem key={todo.id} secondaryAction={
-                <IconButton edge="end" aria-label="delete" onClick={() => handleDeleteTodo(todo.id)}>
-                  <DeleteIcon />
-                </IconButton>
-              }>
-                <TextField
-                  value={todo.name}
-                  onChange={(e) => handleTodoChange(todo.id, e.target.value)}
-                  fullWidth
-                />
-              </ListItem>
-            ))
-          ) : (
-            <Typography>朝のタスクがありません</Typography>
-          )}
-        </List>
-        <Divider />
-        <Box mt={2} textAlign="center">
-          <TextField
-            inputRef={todoNameRef}
-            label="新しいタスク"
-            variant="outlined"
-            fullWidth
-          />
-          <Button variant="contained" color="secondary" onClick={onAddMorningTodo}>
-            朝のタスクを追加
-          </Button>
-        </Box>
+    <Box width={200} p={2}>
+      <Typography variant="h6">毎朝のタスク</Typography>
+      <List>
+        {defaultMorningTodos.length > 0 ? (
+          defaultMorningTodos.map((todo) => (
+            <ListItem key={todo.id} secondaryAction={
+              <IconButton edge="end" aria-label="delete" onClick={() => handleDeleteTodo(todo.id)}>
+                <DeleteIcon />
+              </IconButton>
+            }>
+              <TextField
+                value={todo.name}
+                onChange={(e) => handleTodoChange(todo.id, e.target.value)} // タスク名の変更を反映
+                fullWidth
+              />
+            </ListItem>
+          ))
+        ) : (
+          <Typography>朝のタスクがありません</Typography>
+        )}
+      </List>
+      <Divider />
+      <Box mt={2} textAlign="center">
+        <TextField
+          inputRef={todoNameRef} // 新しいタスクを追加するフィールドのref
+          label="新しいタスク"
+          variant="outlined"
+          fullWidth
+        />
+        <Button variant="contained" color="secondary" onClick={onAddMorningTodo} style={{ marginTop: '10px' }}>
+          朝のタスクを追加
+        </Button>
       </Box>
+    </Box>
   );
 }
 
