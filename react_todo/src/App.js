@@ -142,6 +142,10 @@ function App() {
     setTodos(todos.filter(todo => todo.id !== id));
   };
 
+  const handleDeleteMorningTodo = (id) => {
+    setDefaultMorningTodos(prevTodos => prevTodos.filter(todo => todo.id !== id));
+};
+  
   return (
     <Grid container spacing={2}> 
       <Grid item xs={6}>
@@ -173,6 +177,7 @@ function App() {
           defaultMorningTodos={defaultMorningTodos} // タスクのリストを渡す
           handleTodoChange={handleTodoChange} // タスク名変更用の関数を渡す
           handleAddMorningTodos={handleAddMorningTodos} // 新しいタスク追加用の関数を渡す
+          handleDeleteMorningTodo={handleDeleteMorningTodo}
         />
       </Grid>
       <Grid item xs={3}>

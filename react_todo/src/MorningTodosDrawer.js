@@ -2,10 +2,10 @@ import React, { useRef } from 'react';
 import { Box, Typography, List, ListItem, TextField, Button, IconButton, Divider } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
 
-function MorningTodosDrawer({ defaultMorningTodos, handleTodoChange, handleAddMorningTodos }) {
+function MorningTodosDrawer({ defaultMorningTodos, handleTodoChange, handleAddMorningTodos,handleDeleteMorningTodo }) {
   const todoNameRef = useRef(null); // タスク追加用のref
 
-  // 新しいタスクを追加する関数
+  // ユーザー入力を処理しする関数
   const onAddMorningTodo = () => {
     const newTodoName = todoNameRef.current.value.trim(); // 空白を除去
     if (newTodoName !== '') {
@@ -13,11 +13,7 @@ function MorningTodosDrawer({ defaultMorningTodos, handleTodoChange, handleAddMo
       todoNameRef.current.value = ''; // テキストフィールドをクリア
     }
   };
-
-  // タスクを削除する関数
-  const handleDeleteTodo = (id) => {
-    handleTodoChange(id, ''); // 親コンポーネントに削除を依頼する
-  };
+ 
 
   return (
     <Box width={200} p={2}>
@@ -26,7 +22,7 @@ function MorningTodosDrawer({ defaultMorningTodos, handleTodoChange, handleAddMo
         {defaultMorningTodos.length > 0 ? (
           defaultMorningTodos.map((todo) => (
             <ListItem key={todo.id} secondaryAction={
-              <IconButton edge="end" aria-label="delete" onClick={() => handleDeleteTodo(todo.id)}>
+              <IconButton edge="end" aria-label="delete" onClick={() => handleDeleteMorningTodo(todo.id)}>
                 <DeleteIcon />
               </IconButton>
             }>
