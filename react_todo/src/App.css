@@ -1,0 +1,16 @@
+@keyframes pushUp {
+    0% {
+      transform: scaleY(1); /* 通常の高さ */
+    }
+    50% {
+      transform: scaleY(0.8); /* 縮む */
+    }
+    100% {
+      transform: scaleY(1); /* 元の高さに戻る */
+    }
+  }
+  
+  .pushup-animation {
+    animation: pushUp 0.5s ease-in-out; /* アニメーションを0.5秒で実行 */
+  }
+  

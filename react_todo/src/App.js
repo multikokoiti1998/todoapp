@@ -25,6 +25,7 @@ function App() {
   const [routineTodos, setRoutineTodos] = useState(initialState.routineTodos || []);
   const [currentWidth, setCurrentWidth] = useState(initialState.currentWidth);
   const [lastTodoTime, setLastTodoTime] = useState(initialState.lastTodoTime);
+  const [pushupClass, setPushupClass] = useState('');
   const todoNameRef = useRef(null);
 
 
@@ -167,8 +168,15 @@ const handleAddAllRoutineTodos = () => {
     }
 
     setTodos(filteredTodos);
-  };
+    // アニメーションのクラスを一時的に追加
+  setPushupClass('pushup-animation');
 
+  // 0.5秒後にクラスを削除してアニメーションをリセット
+  setTimeout(() => {
+    setPushupClass('');
+  }, 500);
+  };
+//削除関数
   const deleteTodo = (id) => {
     setTodos(todos.filter(todo => todo.id !== id));
   };
@@ -184,7 +192,14 @@ const handleAddAllRoutineTodos = () => {
   return (
     <Grid container spacing={2}> 
       <Grid item xs={6}>
-        <Container maxWidth="sm" className="app-container">
+        <Container maxWidth="sm" className={`app-container ${pushupClass}`}　 style={{ 
+    backgroundImage: 'url("/goodman.png")',
+    backgroundSize: 'cover',          // 画像をコンテナ全体に拡大または縮小
+    backgroundPosition: 'center',     // 画像を中央に配置
+    backgroundRepeat: 'no-repeat',    // 画像を繰り返さない
+    height: '100vh'                   // コンテナの高さを画面全体にする
+  }}>
+    
           <Box mt={4} mb={2} textAlign="center">
             <Typography variant="h4">TODOリスト</Typography>
           </Box>
@@ -208,13 +223,13 @@ const handleAddAllRoutineTodos = () => {
           </Container>
       </Grid>     
       <Grid item xs={3}>
-        <MorningTodosDrawer
-          defaultMorningTodos={defaultMorningTodos} // タスクのリストを渡す
-          handleTodoChange={handleTodoChange} // タスク名変更用の関数を渡す
-          handleAddMorningTodos={handleAddMorningTodos} // 新しいタスク追加用の関数を渡す
-          handleDeleteMorningTodo={handleDeleteMorningTodo}
-        />
-      </Grid>
+      <MorningTodosDrawer
+        defaultMorningTodos={defaultMorningTodos} // タスクのリストを渡す
+        handleTodoChange={handleTodoChange} // タスク名変更用の関数を渡す
+        handleAddMorningTodos={handleAddMorningTodos} // 新しいタスク追加用の関数を渡す
+        handleDeleteMorningTodo={handleDeleteMorningTodo}
+      />
+　　　</Grid>
       <Grid item xs={3}>
         <RoutineTodosDrawer
 　　　　　 routineTodos={routineTodos} // ルーティンタスクリストを渡す
