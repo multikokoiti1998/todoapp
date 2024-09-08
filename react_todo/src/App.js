@@ -49,49 +49,49 @@ function App() {
   }, [todos, defaultMorningTodos, routineTodos, level, currentWidth, lastTodoTime]);
   
 
-  useEffect(() => {
-    const checkTimeAndNotify = () => {
-      const now = new Date();
-      const hours = now.getHours();
-      const minutes = now.getMinutes();
+  // useEffect(() => {
+  //   const checkTimeAndNotify = () => {
+  //     const now = new Date();
+  //     const hours = now.getHours();
+  //     const minutes = now.getMinutes();
 
-      if (hours >= 6 && minutes >= 0) {
-        setTodos((prevTodos) => [...prevTodos, ...defaultMorningTodos.map(todo => ({
-          ...todo,
-          id: uuidv4(),
-          completed: false
-        }))]);
-        setLastTodoTime(new Date().toISOString());
-        new Notification('TODOリマインダー', {
-          body: `朝だ、準備しろ！ (${hours}:00)。`,
-          icon: '/path/to/icon.png'
-        });
-      }
+  //     if (hours >= 6 && minutes >= 0) {
+  //       setTodos((prevTodos) => [...prevTodos, ...defaultMorningTodos.map(todo => ({
+  //         ...todo,
+  //         id: uuidv4(),
+  //         completed: false
+  //       }))]);
+  //       setLastTodoTime(new Date().toISOString());
+  //       new Notification('TODOリマインダー', {
+  //         body: `朝だ、準備しろ！ (${hours}:00)。`,
+  //         icon: '/path/to/icon.png'
+  //       });
+  //     }
 
-      if (hours >= 8 && minutes >= 0) {
-        const lastTodoDate = new Date(lastTodoTime);
-        const today = new Date();
-        today.setHours(0, 0, 0, 0);
+  //     if (hours >= 8 && minutes >= 0) {
+  //       const lastTodoDate = new Date(lastTodoTime);
+  //       const today = new Date();
+  //       today.setHours(0, 0, 0, 0);
 
-        if (!lastTodoTime || lastTodoDate < today) {
-          new Notification('TODOリマインダー', {
-            body: `やることやれ (${hours}:00)。`,
-            icon: '/path/to/icon.png'
-          });
-          setLevel(prevLevel => Math.max(0, prevLevel - 1));
-        }
-      }
+  //       if (!lastTodoTime || lastTodoDate < today) {
+  //         new Notification('TODOリマインダー', {
+  //           body: `やることやれ (${hours}:00)。`,
+  //           icon: '/path/to/icon.png'
+  //         });
+  //         setLevel(prevLevel => Math.max(0, prevLevel - 1));
+  //       }
+  //     }
 
-      const incompleteTodos = todos.filter(todo => !todo.completed).length;
-      if (incompleteTodos >= 3) {
-        setLevel(prevLevel => Math.max(0, prevLevel - 2));
-      }
-    };
+  //     const incompleteTodos = todos.filter(todo => !todo.completed).length;
+  //     if (incompleteTodos >= 3) {
+  //       setLevel(prevLevel => Math.max(0, prevLevel - 2));
+  //     }
+  //   };
 
-    const interval = setInterval(checkTimeAndNotify, 60000);
+  //   const interval = setInterval(checkTimeAndNotify, 60000);
 
-    return () => clearInterval(interval);
-  }, [lastTodoTime, todos, defaultMorningTodos]);
+  //   return () => clearInterval(interval);
+  // }, [lastTodoTime, todos, defaultMorningTodos]);
 
 
   const handleAddTodo = () => {
@@ -101,7 +101,7 @@ function App() {
     setLastTodoTime(new Date().toISOString());
     todoNameRef.current.value = '';
   };
-
+  // モーニングタスクを追加する関数
   const handleAddMorningTodos = (newTodoName) => {
     const newTodo = {
       id: Date.now(),
@@ -109,15 +109,46 @@ function App() {
     };
     setDefaultMorningTodos((prevTodos) => [...prevTodos, newTodo]);
   };
-  
 
+  // ルーティンタスクを追加する関数
+  const handleAddRoutineTodo = (newTodoName) => {
+    const newTodo = {
+      id: Date.now(), // 一意のIDを生成
+      name: newTodoName,
+      completed: false
+    };
+    setRoutineTodos((prevTodos) => [...prevTodos, newTodo]);
+  };
+
+  
+// タスク名を変更する関数
   const handleTodoChange = (id, newName) => {
     setDefaultMorningTodos(defaultMorningTodos.map(todo =>
       todo.id === id ? { ...todo, name: newName } : todo
     ));
     localStorage.setItem('defaultMorningTodos', JSON.stringify(defaultMorningTodos));
   };
+// タスク名を変更する関数
+  const handleRoutineTodoChange = (id, newName) => {
+    setRoutineTodos((prevTodos) =>
+      prevTodos.map((todo) =>
+        todo.id === id ? { ...todo, name: newName } : todo
+      )
+    );};
+//ルーチンをapp.jsに追加
+const handleAddAllRoutineTodos = () => {
+  if (!routineTodos || routineTodos.length === 0) {
+    console.log('No routine todos to add');
+    return;
+  }
 
+  setTodos((prevTodos) => [
+    ...prevTodos,
+    ...routineTodos.map(todo => ({ ...todo, id: uuidv4(), completed: false }))
+  ]);
+};
+
+//レベルアップ関数
   const toggleTodo = (id) => {
     const newTodos = todos.map((todo) => {
       if (todo.id === id) {
@@ -141,9 +172,13 @@ function App() {
   const deleteTodo = (id) => {
     setTodos(todos.filter(todo => todo.id !== id));
   };
-
+  
   const handleDeleteMorningTodo = (id) => {
     setDefaultMorningTodos(prevTodos => prevTodos.filter(todo => todo.id !== id));
+};
+  
+  const handleDeleteRoutineTodo = (id) => {
+    setRoutineTodos(prevTodos => prevTodos.filter(todo => todo.id !== id));
 };
   
   return (
@@ -181,14 +216,21 @@ function App() {
         />
       </Grid>
       <Grid item xs={3}>
-        <RoutineTodosDrawer />
+        <RoutineTodosDrawer
+　　　　　 routineTodos={routineTodos} // ルーティンタスクリストを渡す
+          handleAddRoutineTodo={handleAddRoutineTodo} // 追加関数を渡す
+          handleRoutineTodoChange={handleRoutineTodoChange} // 変更関数を渡す
+          handleDeleteRoutineTodo={handleDeleteRoutineTodo} // 削除関数を渡す
+          handleAddAllRoutineTodos={handleAddAllRoutineTodos}//todosに追加
+          />
       </Grid>
       
       
 
       </Grid> 
-    
+  
   );
+  
 }
 
 export default App;

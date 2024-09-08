@@ -1,32 +1,22 @@
-import React, { useState, useRef } from 'react';
+import React, { useRef } from 'react';
 import {  Divider, Box, TextField, Button, List, ListItem, Typography, IconButton } from '@mui/material';
-import { v4 as uuidv4 } from 'uuid';
 import DeleteIcon from '@mui/icons-material/Delete';
 
-function RoutineTodosDrawer() {
-   const [routineTodos, setRoutineTodos] = useState([]);
-   const todoNameRef = useRef(null);
+function RoutineTodosDrawer({ routineTodos, handleAddRoutineTodo, handleRoutineTodoChange, handleDeleteRoutineTodo, handleAddAllRoutineTodos }) {
+  const todoNameRef = useRef(null);
 
   const onAddRoutineTodo = () => {
     const newTodoName = todoNameRef.current.value.trim();
     if (newTodoName !== '') {
-      setRoutineTodos(prevTodos => [
-        ...prevTodos,
-        { id: uuidv4(), name: newTodoName, completed: false }
-      ]);
+      handleAddRoutineTodo(newTodoName); // 親コンポーネントの関数を呼び出し、タスクを追加
       todoNameRef.current.value = ''; // 入力フィールドをクリア
     }
   };
 
-  const handleTodoChange = (id, newName) => {
-    setRoutineTodos(prevTodos =>
-      prevTodos.map(todo => todo.id === id ? { ...todo, name: newName } : todo)
-    );
+  const onAddAllRoutineTodos = () => {
+    handleAddAllRoutineTodos(); // 全てのルーティンタスクを App.js の todos に追加
   };
 
-  const handleDeleteTodo = (id) => {
-    setRoutineTodos(prevTodos => prevTodos.filter(todo => todo.id !== id));
-  };
 
   return (
       <Box width={200} p={2}>
@@ -35,13 +25,13 @@ function RoutineTodosDrawer() {
           {routineTodos.length > 0 ? (
             routineTodos.map((todo) => (
               <ListItem key={todo.id} secondaryAction={
-                <IconButton edge="end" aria-label="delete" onClick={() => handleDeleteTodo(todo.id)}>
+                <IconButton edge="end" aria-label="delete" onClick={() => handleDeleteRoutineTodo(todo.id)}>
                   <DeleteIcon />
                 </IconButton>
               }>
                 <TextField
                   value={todo.name}
-                  onChange={(e) => handleTodoChange(todo.id, e.target.value)}
+                  onChange={(e) => handleRoutineTodoChange(todo.id, e.target.value)}
                   fullWidth
                 />
               </ListItem>
@@ -61,7 +51,7 @@ function RoutineTodosDrawer() {
           <Button variant="contained" color="primary" onClick={onAddRoutineTodo}>
             ルーティンを追加
           </Button>
-          <Button variant="contained" color="primary" onClick={onAddRoutineTodo} sx={{mt:1}}>
+          <Button variant="contained" color="primary" onClick={onAddAllRoutineTodos} sx={{mt:1}}>
             TODOに追加
           </Button>
         </Box>
