@@ -268,7 +268,7 @@ return (
           height: '100vh'
         }}>
           <Box mt={4} mb={2} textAlign="center">
-            <Typography variant="h4">TODOリスト</Typography>
+            <Typography variant="h4">TODOリストです</Typography>
           </Box>
           <Box display="flex" mb={2}>
             <TextField
