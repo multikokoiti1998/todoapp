@@ -5,7 +5,7 @@ import TodoList from './TodoList';
 import MorningTodosDrawer from './MorningTodosDrawer';
 import RoutineTodosDrawer from './RoutineTodosDrawer';
 import { v4 as uuidv4 } from 'uuid';
-import { createUserWithEmailAndPassword,signInWithEmailAndPassword, signOut } from 'firebase/auth';
+import { onAuthStateChanged,createUserWithEmailAndPassword,signInWithEmailAndPassword, signOut } from 'firebase/auth';
 import { auth } from './firebase'; // firebase.jsからauthをインポート
 
 const APP_KEY = 'sampleApp';
@@ -72,6 +72,21 @@ function App() {
     }
   };
 
+   // Firebase Authenticationの状態監視
+   useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      if (user) {
+        // ユーザーがサインインしている場合、ユーザー情報を保持
+        setUser(user);
+      } else {
+        // ユーザーがサインアウトしている場合、ログイン状態をクリア
+        setUser(null);
+      }
+    });
+
+    // クリーンアップ関数
+    return () => unsubscribe();
+  }, []);
 
   useEffect(() => {
     const savedState = localStorage.getItem(APP_KEY);
