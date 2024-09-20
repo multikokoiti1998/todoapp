@@ -6,27 +6,21 @@ import MorningTodosDrawer from './MorningTodosDrawer';
 import RoutineTodosDrawer from './RoutineTodosDrawer';
 import { v4 as uuidv4 } from 'uuid';
 import { onAuthStateChanged,createUserWithEmailAndPassword,signInWithEmailAndPassword, signOut } from 'firebase/auth';
-import { auth } from './firebase'; // firebase.jsからauthをインポート
+import { auth ,db} from './firebase'; // firebase.jsからauthをインポート
+import { doc, getDoc, setDoc } from "firebase/firestore";
 
 const APP_KEY = 'sampleApp';
 
 function App() {
-  const savedState = localStorage.getItem(APP_KEY);
-  const initialState = savedState ? JSON.parse(savedState) : {
-    todos: [],
-    defaultMorningTodos: [],
-    routineTodos: [],
-    level: 1,
-    currentWidth: 0,
-    lastTodoTime: null
-  };
 
-  const [todos, setTodos] = useState(initialState.todos || []);
-  const [level, setLevel] = useState(initialState.level);
-  const [defaultMorningTodos, setDefaultMorningTodos] = useState(initialState.defaultMorningTodos || []);
-  const [routineTodos, setRoutineTodos] = useState(initialState.routineTodos || []);
-  const [currentWidth, setCurrentWidth] = useState(initialState.currentWidth);
-  const [lastTodoTime, setLastTodoTime] = useState(initialState.lastTodoTime);
+
+  const [todos, setTodos] = useState([]);
+  const [level, setLevel] = useState([1]);
+  const [loading, setLoading] = useState(true); // 初期ローディング状態
+  const [defaultMorningTodos, setDefaultMorningTodos] = useState([]);
+  const [routineTodos, setRoutineTodos] = useState([]);
+  const [currentWidth, setCurrentWidth] = useState([]);
+  const [lastTodoTime, setLastTodoTime] = useState([]);
   const [pushupClass, setPushupClass] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -73,85 +67,76 @@ function App() {
   };
 
    // Firebase Authenticationの状態監視
-   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
-      if (user) {
-        // ユーザーがサインインしている場合、ユーザー情報を保持
-        setUser(user);
+  // Firebaseの認証状態を監視してユーザーを特定する
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
+      if (currentUser) {
+        console.log("User logged in:", currentUser);
+        setUser(currentUser);
+        await loadUserData(currentUser); // ユーザーデータをFirestoreから取得
       } else {
-        // ユーザーがサインアウトしている場合、ログイン状態をクリア
+        console.log("No user logged in");
         setUser(null);
       }
+      setLoading(false); // ローディングを終了
     });
 
-    // クリーンアップ関数
-    return () => unsubscribe();
+    return () => unsubscribe(); // クリーンアップリスナー
   }, []);
 
-  useEffect(() => {
-    const savedState = localStorage.getItem(APP_KEY);
-    if (savedState) {
-      const parsedState = JSON.parse(savedState);
-      setTodos(parsedState.todos || []);
-      setDefaultMorningTodos(parsedState.defaultMorningTodos || []);
-      setRoutineTodos(parsedState.routineTodos || []);
-      setLevel(parsedState.level || 1);
-      setCurrentWidth(parsedState.currentWidth || 0);
-      setLastTodoTime(parsedState.lastTodoTime || null);
+
+  　const loadUserData = async (user) => {
+    try {
+      const userDocRef = doc(db, 'users', user.uid); // usersコレクション内にユーザーのドキュメント
+      const userDocSnap = await getDoc(userDocRef);
+
+      if (userDocSnap.exists()) {
+        const data = userDocSnap.data();
+        setTodos(data.todos || []);
+        setDefaultMorningTodos(data.defaultMorningTodos || []);
+        setRoutineTodos(data.routineTodos || []);
+        setLevel(data.level || 1);
+        setCurrentWidth(data.currentWidth || 0);
+        setLastTodoTime(data.lastTodoTime || null);
+      } else {
+        console.log("No such document, creating new user data...");
+        // ドキュメントがない場合、新規にデータをFirestoreに保存
+        saveUserData();
+      }
+    } catch (error) {
+      console.error("Error loading user data: ", error);
     }
-  }, []); // 初回レンダリング時のみ実行する
+  };
 
-  useEffect(() => {
-    const stateToSave = { todos, defaultMorningTodos, routineTodos, level, currentWidth, lastTodoTime };
-    localStorage.setItem(APP_KEY, JSON.stringify(stateToSave));
-    console.log("Saving state to localStorage:", stateToSave);
-    console.log("defaultMorningTodos:", defaultMorningTodos);
+  // Firestoreにユーザーデータを保存する関数
+  const saveUserData = async () => {
+    try {
+      const userDocRef = doc(db, 'users', user.uid); // usersコレクション内にユーザーのドキュメント
+      const userData = {
+        todos,
+        defaultMorningTodos,
+        routineTodos,
+        level,
+        currentWidth,
+        lastTodoTime,
+      };
+      await setDoc(userDocRef, userData);
+      console.log("User data saved successfully");
+    } catch (error) {
+      console.error("Error saving user data: ", error);
+    }
+  };
+
+  // todosが変更された時にFirestoreにデータを保存
+useEffect(() => {
+  if (user) {
+    console.log("User ID:", user.uid);  // ここでユーザーIDを確認
+    saveUserData();
+    console.log("情報保存OK");
+  } else {
+    console.log("No user is logged in");
+  }
   }, [todos, defaultMorningTodos, routineTodos, level, currentWidth, lastTodoTime]);
-  
-
-  // useEffect(() => {
-  //   const checkTimeAndNotify = () => {
-  //     const now = new Date();
-  //     const hours = now.getHours();
-  //     const minutes = now.getMinutes();
-
-  //     if (hours >= 6 && minutes >= 0) {
-  //       setTodos((prevTodos) => [...prevTodos, ...defaultMorningTodos.map(todo => ({
-  //         ...todo,
-  //         id: uuidv4(),
-  //         completed: false
-  //       }))]);
-  //       setLastTodoTime(new Date().toISOString());
-  //       new Notification('TODOリマインダー', {
-  //         body: `朝だ、準備しろ！ (${hours}:00)。`,
-  //         icon: '/path/to/icon.png'
-  //       });
-  //     }
-
-  //     if (hours >= 8 && minutes >= 0) {
-  //       const lastTodoDate = new Date(lastTodoTime);
-  //       const today = new Date();
-  //       today.setHours(0, 0, 0, 0);
-
-  //       if (!lastTodoTime || lastTodoDate < today) {
-  //         new Notification('TODOリマインダー', {
-  //           body: `やることやれ (${hours}:00)。`,
-  //           icon: '/path/to/icon.png'
-  //         });
-  //         setLevel(prevLevel => Math.max(0, prevLevel - 1));
-  //       }
-  //     }
-
-  //     const incompleteTodos = todos.filter(todo => !todo.completed).length;
-  //     if (incompleteTodos >= 3) {
-  //       setLevel(prevLevel => Math.max(0, prevLevel - 2));
-  //     }
-  //   };
-
-  //   const interval = setInterval(checkTimeAndNotify, 60000);
-
-  //   return () => clearInterval(interval);
-  // }, [lastTodoTime, todos, defaultMorningTodos]);
 
 
   const handleAddTodo = () => {
