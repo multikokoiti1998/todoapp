@@ -5,6 +5,8 @@ import TodoList from './TodoList';
 import MorningTodosDrawer from './MorningTodosDrawer';
 import RoutineTodosDrawer from './RoutineTodosDrawer';
 import { v4 as uuidv4 } from 'uuid';
+import { signInWithEmailAndPassword, signOut } from 'firebase/auth';
+import { auth } from './firebase'; // firebase.jsからauthをインポート
 
 const APP_KEY = 'sampleApp';
 
@@ -26,8 +28,34 @@ function App() {
   const [currentWidth, setCurrentWidth] = useState(initialState.currentWidth);
   const [lastTodoTime, setLastTodoTime] = useState(initialState.lastTodoTime);
   const [pushupClass, setPushupClass] = useState('');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [user, setUser] = useState(null);
+  const [error, setError] = useState('');
   const todoNameRef = useRef(null);
 
+  // ログイン処理
+  const handleLogin = async (e) => {
+    e.preventDefault();
+    try {
+      const userCredential = await signInWithEmailAndPassword(auth, email, password);
+      setUser(userCredential.user); // ログインしたユーザー情報をセット
+      console.log('ログイン成功');
+    } catch (error) {
+      setError('ログインに失敗しました: ' + error.message);
+    }
+  };
+
+  // ログアウト処理
+  const handleLogout = async () => {
+    try {
+      await signOut(auth);
+      setUser(null); // ログアウト後にユーザー情報をクリア
+      console.log('ログアウト成功');
+    } catch (error) {
+      console.error('ログアウトに失敗しました:', error);
+    }
+  };
 
   useEffect(() => {
     const savedState = localStorage.getItem(APP_KEY);
@@ -189,17 +217,56 @@ const handleAddAllRoutineTodos = () => {
     setRoutineTodos(prevTodos => prevTodos.filter(todo => todo.id !== id));
 };
   
-  return (
+return (
+  <>
+    {/* ヘッダー部分 */}
+    <header>
+      <Container maxWidth="lg" style={{ padding: '10px 0', textAlign: 'center', backgroundColor: '#f5f5f5' }}>
+        <Typography variant="h4">TODOアプリケーション</Typography>
+        {user ? (
+          <div>
+            <Typography variant="subtitle1">こんにちは、{user.email}さん</Typography>
+            <Button variant="contained" color="secondary" onClick={handleLogout}>
+              ログアウト
+            </Button>
+          </div>
+        ) : (
+          <form onSubmit={handleLogin}>
+            <TextField
+              label="メールアドレス"
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              size="small"
+              style={{ marginRight: '10px' }}
+            />
+            <TextField
+              label="パスワード"
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              size="small"
+              style={{ marginRight: '10px' }}
+            />
+            <Button variant="contained" color="primary" type="submit">
+              ログイン
+            </Button>
+          </form>
+        )}
+        {error && <Typography color="error">{error}</Typography>}
+      </Container>
+    </header>
+
+    {/* メインコンテンツ部分 */}
     <Grid container spacing={2}> 
       <Grid item xs={6}>
-        <Container maxWidth="sm" className={`app-container ${pushupClass}`}　 style={{ 
-    backgroundImage: 'url("/goodman.png")',
-    backgroundSize: 'cover',          // 画像をコンテナ全体に拡大または縮小
-    backgroundPosition: 'center',     // 画像を中央に配置
-    backgroundRepeat: 'no-repeat',    // 画像を繰り返さない
-    height: '100vh'                   // コンテナの高さを画面全体にする
-  }}>
-    
+        <Container maxWidth="sm" className={`app-container ${pushupClass}`} style={{ 
+          backgroundImage: 'url("/goodman.png")',
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+          backgroundRepeat: 'no-repeat',
+          height: '100vh'
+        }}>
           <Box mt={4} mb={2} textAlign="center">
             <Typography variant="h4">TODOリスト</Typography>
           </Box>
@@ -220,32 +287,29 @@ const handleAddAllRoutineTodos = () => {
             <Typography variant="subtitle1">漢レベル: {level}</Typography>
             <LinearProgress variant="determinate" value={currentWidth} />
           </Box>
-          </Container>
+        </Container>
       </Grid>     
       <Grid item xs={3}>
-      <MorningTodosDrawer
-        defaultMorningTodos={defaultMorningTodos} // タスクのリストを渡す
-        handleTodoChange={handleTodoChange} // タスク名変更用の関数を渡す
-        handleAddMorningTodos={handleAddMorningTodos} // 新しいタスク追加用の関数を渡す
-        handleDeleteMorningTodo={handleDeleteMorningTodo}
-      />
-　　　</Grid>
+        <MorningTodosDrawer
+          defaultMorningTodos={defaultMorningTodos} 
+          handleTodoChange={handleTodoChange} 
+          handleAddMorningTodos={handleAddMorningTodos} 
+          handleDeleteMorningTodo={handleDeleteMorningTodo}
+        />
+      </Grid>
       <Grid item xs={3}>
         <RoutineTodosDrawer
-　　　　　 routineTodos={routineTodos} // ルーティンタスクリストを渡す
-          handleAddRoutineTodo={handleAddRoutineTodo} // 追加関数を渡す
-          handleRoutineTodoChange={handleRoutineTodoChange} // 変更関数を渡す
-          handleDeleteRoutineTodo={handleDeleteRoutineTodo} // 削除関数を渡す
-          handleAddAllRoutineTodos={handleAddAllRoutineTodos}//todosに追加
-          />
+          routineTodos={routineTodos} 
+          handleAddRoutineTodo={handleAddRoutineTodo} 
+          handleRoutineTodoChange={handleRoutineTodoChange} 
+          handleDeleteRoutineTodo={handleDeleteRoutineTodo} 
+          handleAddAllRoutineTodos={handleAddAllRoutineTodos}
+        />
       </Grid>
-      
-      
-
-      </Grid> 
-  
-  );
-  
+    </Grid>
+  </>
+);
 }
+
 
 export default App;
