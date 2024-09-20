@@ -5,7 +5,7 @@ import TodoList from './TodoList';
 import MorningTodosDrawer from './MorningTodosDrawer';
 import RoutineTodosDrawer from './RoutineTodosDrawer';
 import { v4 as uuidv4 } from 'uuid';
-import { signInWithEmailAndPassword, signOut } from 'firebase/auth';
+import { createUserWithEmailAndPassword,signInWithEmailAndPassword, signOut } from 'firebase/auth';
 import { auth } from './firebase'; // firebase.jsからauthをインポート
 
 const APP_KEY = 'sampleApp';
@@ -268,7 +268,7 @@ return (
           height: '100vh'
         }}>
           <Box mt={4} mb={2} textAlign="center">
-            <Typography variant="h4">TODOリストです</Typography>
+            <Typography variant="h4">TODOリスト</Typography>
           </Box>
           <Box display="flex" mb={2}>
             <TextField
