@@ -238,7 +238,7 @@ return (
  {/* ヘッダー部分 */}
  <header>
         <Container maxWidth="lg" style={{ padding: '10px 0', textAlign: 'center', backgroundColor: '#f5f5f5' }}>
-          <Typography variant="h4">TODOアプリケーション</Typography>
+          <Typography variant="h4">漢を磨くTODOS</Typography>
           {user ? (
             <div>
               <Typography variant="subtitle1">こんにちは、{user.email}さん</Typography>
