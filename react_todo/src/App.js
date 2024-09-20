@@ -32,30 +32,46 @@ function App() {
   const [password, setPassword] = useState('');
   const [user, setUser] = useState(null);
   const [error, setError] = useState('');
+  const [isSignUp, setIsSignUp] = useState(false);
   const todoNameRef = useRef(null);
 
-  // ログイン処理
+   // ユーザー登録（サインアップ）処理
+   const handleSignUp = async (e) => {
+    e.preventDefault();
+    try {
+      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+      setUser(userCredential.user); // ユーザー登録後にログイン状態にする
+      setError(''); // エラーメッセージをクリア
+      console.log('ユーザー登録成功:', userCredential.user.email);
+    } catch (err) {
+      setError('ユーザー登録に失敗しました: ' + err.message);
+    }
+  };
+
+  // サインイン処理
   const handleLogin = async (e) => {
     e.preventDefault();
     try {
       const userCredential = await signInWithEmailAndPassword(auth, email, password);
-      setUser(userCredential.user); // ログインしたユーザー情報をセット
-      console.log('ログイン成功');
-    } catch (error) {
-      setError('ログインに失敗しました: ' + error.message);
+      setUser(userCredential.user);
+      setError('');
+      console.log('サインイン成功:', userCredential.user.email);
+    } catch (err) {
+      setError('サインインに失敗しました: ' + err.message);
     }
   };
 
-  // ログアウト処理
+  // サインアウト処理
   const handleLogout = async () => {
     try {
       await signOut(auth);
-      setUser(null); // ログアウト後にユーザー情報をクリア
-      console.log('ログアウト成功');
-    } catch (error) {
-      console.error('ログアウトに失敗しました:', error);
+      setUser(null);
+      console.log('サインアウト成功');
+    } catch (err) {
+      console.error('サインアウトに失敗しました:', err.message);
     }
   };
+
 
   useEffect(() => {
     const savedState = localStorage.getItem(APP_KEY);
@@ -219,43 +235,46 @@ const handleAddAllRoutineTodos = () => {
   
 return (
   <>
-    {/* ヘッダー部分 */}
-    <header>
-      <Container maxWidth="lg" style={{ padding: '10px 0', textAlign: 'center', backgroundColor: '#f5f5f5' }}>
-        <Typography variant="h4">TODOアプリケーション</Typography>
-        {user ? (
-          <div>
-            <Typography variant="subtitle1">こんにちは、{user.email}さん</Typography>
-            <Button variant="contained" color="secondary" onClick={handleLogout}>
-              ログアウト
-            </Button>
-          </div>
-        ) : (
-          <form onSubmit={handleLogin}>
-            <TextField
-              label="メールアドレス"
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              size="small"
-              style={{ marginRight: '10px' }}
-            />
-            <TextField
-              label="パスワード"
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              size="small"
-              style={{ marginRight: '10px' }}
-            />
-            <Button variant="contained" color="primary" type="submit">
-              ログイン
-            </Button>
-          </form>
-        )}
-        {error && <Typography color="error">{error}</Typography>}
-      </Container>
-    </header>
+ {/* ヘッダー部分 */}
+ <header>
+        <Container maxWidth="lg" style={{ padding: '10px 0', textAlign: 'center', backgroundColor: '#f5f5f5' }}>
+          <Typography variant="h4">TODOアプリケーション</Typography>
+          {user ? (
+            <div>
+              <Typography variant="subtitle1">こんにちは、{user.email}さん</Typography>
+              <Button variant="contained" color="secondary" onClick={handleLogout}>
+                ログアウト
+              </Button>
+            </div>
+          ) : (
+            <form onSubmit={isSignUp ? handleSignUp : handleLogin}>
+              <TextField
+                label="メールアドレス"
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                size="small"
+                style={{ marginRight: '10px' }}
+              />
+              <TextField
+                label="パスワード"
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                size="small"
+                style={{ marginRight: '10px' }}
+              />
+              <Button variant="contained" color="primary" type="submit">
+                {isSignUp ? '登録' : 'ログイン'}
+              </Button>
+            </form>
+          )}
+          {error && <Typography color="error">{error}</Typography>}
+          <Button color="primary" onClick={() => setIsSignUp(!isSignUp)}>
+            {isSignUp ? '既存アカウントでログイン' : '新規アカウントを作成'}
+          </Button>
+        </Container>
+      </header>
 
     {/* メインコンテンツ部分 */}
     <Grid container spacing={2}> 
