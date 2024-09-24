@@ -15,7 +15,7 @@ function App() {
 
 
   const [todos, setTodos] = useState([]);
-  const [level, setLevel] = useState([1]);
+  const [level, setLevel] = useState(1);
   const [loading, setLoading] = useState(true); // 初期ローディング状態
   const [defaultMorningTodos, setDefaultMorningTodos] = useState([]);
   const [routineTodos, setRoutineTodos] = useState([]);
