@@ -19,7 +19,7 @@ function App() {
   const [loading, setLoading] = useState(true); // 初期ローディング状態
   const [defaultMorningTodos, setDefaultMorningTodos] = useState([]);
   const [routineTodos, setRoutineTodos] = useState([]);
-  const [currentWidth, setCurrentWidth] = useState([]);
+  const [currentWidth, setCurrentWidth] = useState(0);
   const [lastTodoTime, setLastTodoTime] = useState([]);
   const [pushupClass, setPushupClass] = useState('');
   const [email, setEmail] = useState('');
@@ -205,10 +205,10 @@ const handleAddAllRoutineTodos = () => {
     const newWidth = currentWidth + 20;
 
     if (newWidth >= 100) {
-      setLevel(level + 1);
-      setCurrentWidth(0);
+      setLevel((prevLevel) => prevLevel + 1); // prevLevelを使ってレベルを更新
+      setCurrentWidth(0); // currentWidthを0にリセット
     } else {
-      setCurrentWidth(newWidth);
+      setCurrentWidth(newWidth); // 幅を更新
     }
 
     setTodos(filteredTodos);
@@ -307,15 +307,7 @@ return (
             <LinearProgress variant="determinate" value={currentWidth} />
           </Box>
         </Container>
-      </Grid>     
-      <Grid item xs={3}>
-        <MorningTodosDrawer
-          defaultMorningTodos={defaultMorningTodos} 
-          handleTodoChange={handleTodoChange} 
-          handleAddMorningTodos={handleAddMorningTodos} 
-          handleDeleteMorningTodo={handleDeleteMorningTodo}
-        />
-      </Grid>
+      </Grid>   
       <Grid item xs={3}>
         <RoutineTodosDrawer
           routineTodos={routineTodos} 
@@ -324,7 +316,16 @@ return (
           handleDeleteRoutineTodo={handleDeleteRoutineTodo} 
           handleAddAllRoutineTodos={handleAddAllRoutineTodos}
         />
+      </Grid>  
+      <Grid item xs={3}>
+        <MorningTodosDrawer
+          defaultMorningTodos={defaultMorningTodos} 
+          handleTodoChange={handleTodoChange} 
+          handleAddMorningTodos={handleAddMorningTodos} 
+          handleDeleteMorningTodo={handleDeleteMorningTodo}
+        />
       </Grid>
+      
     </Grid>
   </>
 );
