@@ -27,6 +27,7 @@ function App() {
   const [user, setUser] = useState(null);
   const [error, setError] = useState('');
   const [isSignUp, setIsSignUp] = useState(false);
+  const [addedToday, setAddedToday] = useState(false);//追加済みフラグ
   const todoNameRef = useRef(null);
 
    // ユーザー登録（サインアップ）処理
@@ -154,6 +155,40 @@ useEffect(() => {
     };
     setDefaultMorningTodos((prevTodos) => [...prevTodos, newTodo]);
   };
+  
+  // 毎朝6時にモーニングタスクを追加する関数
+  const addMorningTodosToTodos = () => {
+    setTodos((prevTodos) => [
+      ...prevTodos,
+      ...defaultMorningTodos.map(todo => ({ ...todo, id: Date.now() + todo.id })),
+    ]);
+    setAddedToday(true); // 追加済みフラグをtrueに
+  };
+
+  // 現在時刻が6時以降であり、かつ今日まだ追加されていなければモーニングタスクを追加
+  useEffect(() => {
+    const checkTimeAndAddMorningTodos = () => {
+      const now = new Date();
+      const hours = now.getHours();
+      const minutes = now.getMinutes();
+
+      // 6時以降でまだタスクが追加されていない場合
+      if (hours >= 6 && !addedToday) {
+        addMorningTodosToTodos();
+        console.log("Morning todos added to todos");
+      }
+
+      // 日付が変わった場合、フラグをリセット
+      if (hours === 0 && minutes === 0) {
+        setAddedToday(false); // 翌日にフラグをリセット
+        console.log("AddedToday flag reset");
+      }
+    };
+    // 1分ごとに時間をチェックする
+    const intervalId = setInterval(checkTimeAndAddMorningTodos, 60000); // 60000ミリ秒 = 1分
+     // コンポーネントのクリーンアップ
+     return () => clearInterval(intervalId);
+    }, [addedToday, defaultMorningTodos]);
 
   // ルーティンタスクを追加する関数
   const handleAddRoutineTodo = (newTodoName) => {
