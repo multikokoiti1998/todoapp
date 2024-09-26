@@ -255,6 +255,32 @@ const handleAddAllRoutineTodos = () => {
     setPushupClass('');
   }, 500);
   };
+  const decreaseManLevelAtEndOfDay = () => {
+    const incompleteTodosCount = todos.filter(todo => !todo.completed).length; // 未完了タスクをカウント
+    if (incompleteTodosCount > 0) {
+      setLevel((prevLevel) => Math.max(prevLevel - incompleteTodosCount, 0)); // 男レベルを未完了タスク数分減らす
+      alert(`男レベルが ${incompleteTodosCount} 減少しました。残りの男レベル: ${level - incompleteTodosCount}`);
+    }
+  };
+
+  // 1日の終わりに男レベルを下げる処理を追加
+  useEffect(() => {
+    const now = new Date();
+    const timeUntilEndOfDay = new Date(
+      now.getFullYear(),
+      now.getMonth(),
+      now.getDate(),
+      23, 59, 59
+    ) - now;
+
+    const timeoutId = setTimeout(() => {
+      decreaseManLevelAtEndOfDay(); // 1日の終わりに男レベルを減らす処理を呼び出す
+    }, timeUntilEndOfDay);
+
+    // クリーンアップ関数（コンポーネントがアンマウントされた場合の処理）
+    return () => clearTimeout(timeoutId);
+  }, [todos]);
+
 //削除関数
   const deleteTodo = (id) => {
     setTodos(todos.filter(todo => todo.id !== id));
