@@ -339,7 +339,7 @@ return (
 
     {/* メインコンテンツ部分 */}
     <Grid container spacing={2}> 
-      <Grid item xs={6}>
+      <Grid item s={12} sm={6}>
         <Container maxWidth="sm" className={`app-container ${pushupClass}`} style={{ 
           backgroundImage: 'url("/goodman.png")',
           backgroundSize: 'cover',
@@ -369,7 +369,7 @@ return (
           </Box>
         </Container>
       </Grid>   
-      <Grid item xs={3}>
+      <Grid item xs={12} sm={3}>
         <RoutineTodosDrawer
           routineTodos={routineTodos} 
           handleAddRoutineTodo={handleAddRoutineTodo} 
@@ -378,7 +378,7 @@ return (
           handleAddAllRoutineTodos={handleAddAllRoutineTodos}
         />
       </Grid>  
-      <Grid item xs={3}>
+      <Grid item xs={12} sm={3}>
         <MorningTodosDrawer
           defaultMorningTodos={defaultMorningTodos} 
           handleTodoChange={handleTodoChange} 
